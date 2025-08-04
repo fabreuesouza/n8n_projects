@@ -1,0 +1,539 @@
+{
+  "name": "Whatsapp Cloud API - Atende",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "435809202952433",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {
+          "previewUrl": false
+        },
+        "requestOptions": {}
+      },
+      "id": "b9148ac4-c78b-4cb0-a866-bf0de1e8ef2c",
+      "name": "WhatsApp Business Cloud",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        160
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "j4HnPD9DbrczEfsI",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ]
+      },
+      "id": "db3825bc-3d1d-4a5c-9c6b-e6fa9de4e9e9",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        220
+      ],
+      "webhookId": "bc30370e-ba25-4893-9a5b-d9fbdfa76bdc",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "YpPQ9vCfrzpgbTi7",
+          "name": "WhatsApp OAuth account"
+        }
+      },
+      "notes": "Teste"
+    },
+    {
+      "parameters": {},
+      "id": "1d2af471-2386-4eb8-ad58-122cb9d391a6",
+      "name": "Calculator",
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 147184,
+        "tableId": 373639,
+        "rowId": "={{ $('Cria User').item.json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 2849820,
+              "fieldValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "id": "3f61970b-6e4c-4732-b18f-1d85062e8df8",
+      "name": "Baserow",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        380
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "zXcIuaBwioDYqGhb",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "16348ca0-39a5-4236-a2dc-f0ffa0427d5e",
+              "leftValue": "={{ $json.openai_thread }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a00a9ff0-64fb-4f02-8678-faee3376d548",
+      "name": "Existe Thread?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "databaseId": 147184,
+        "tableId": 373639,
+        "returnAll": true,
+        "additionalOptions": {
+          "filters": {
+            "fields": [
+              {
+                "field": 2817220,
+                "value": "={{ $json.contacts[0].wa_id }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "397713ce-9542-4b1f-b2f3-dff1484d8f02",
+      "name": "Checa Usuário",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        140,
+        200
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "baserowApi": {
+          "id": "zXcIuaBwioDYqGhb",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "13ef09e5-e33a-400f-84f1-eb1514f22c8e",
+              "leftValue": "={{ $json.wabu_number }}",
+              "rightValue": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f5a723c0-b1e1-479f-a89a-e7538b9370b0",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        360,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "databaseId": 147184,
+        "tableId": 373639,
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 2817220,
+              "fieldValue": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+            },
+            {
+              "fieldId": 2850207,
+              "fieldValue": "={{ $('WhatsApp Trigger').item.json.contacts[0].profile.name }}"
+            },
+            {
+              "fieldId": 2817221,
+              "fieldValue": "={{ $now }}"
+            }
+          ]
+        }
+      },
+      "id": "477744ff-9e40-4f59-9c8d-f4d0c3854a87",
+      "name": "Cria User",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        620,
+        280
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "zXcIuaBwioDYqGhb",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.openai.com/v1/threads",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "OpenAI-Beta",
+              "value": "assistants=v2"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5f8df089-77bc-4630-b8ec-2fd6d3078f7f",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        380
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oLuaU5tEYUN8P0Yr",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "c6c68614-1d69-428e-871d-597c874fcaad",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        880,
+        200
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "assistantId": {
+          "__rl": true,
+          "value": "asst_wHIdj04640ZIa9yHBvgGBsKY",
+          "mode": "list",
+          "cachedResultName": "Marcelo Matoso"
+        },
+        "prompt": "define",
+        "text": "={{ $('Is Text?').item.json.messages[0].text.body }} Nome do Usuário: {{ $('Is Text?').item.json.contacts[0].profile.name }}",
+        "memory": "threadId",
+        "threadId": "={{ $json.openai_thread }}",
+        "options": {}
+      },
+      "id": "a02352e7-d694-4b74-b19c-7019422e6108",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        1300,
+        160
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "credentials": {
+        "openAiApi": {
+          "id": "oLuaU5tEYUN8P0Yr",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "54adac6a-48f1-48bd-b2c6-4e42516af66a",
+              "leftValue": "={{ $json.messages[0] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "1e549681-1c91-4c59-abd8-7cfae18a7c9a",
+              "leftValue": "={{ $json.messages[0].type }}",
+              "rightValue": "text",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "69d0e75e-699b-4e11-ab15-c93648c8a356",
+      "name": "Is Text?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        220
+      ]
+    }
+  ],
+  "pinData": {
+    "WhatsApp Trigger": [
+      {
+        "json": {
+          "messaging_product": "whatsapp",
+          "metadata": {
+            "display_phone_number": "551143803396",
+            "phone_number_id": "435809202952433"
+          },
+          "contacts": [
+            {
+              "profile": {
+                "name": "Fabiano Machado"
+              },
+              "wa_id": "5521988789979"
+            }
+          ],
+          "messages": [
+            {
+              "from": "5521988789979",
+              "id": "wamid.HBgNNTUyMTk4ODc4OTk3ORUCABIYIDlFRjU3REI3NzVFNzQ2QUIzQTIwQzVCMjU2QjQ1RDFDAA==",
+              "timestamp": "1729822950",
+              "type": "audio",
+              "audio": {
+                "mime_type": "audio/ogg; codecs=opus",
+                "sha256": "jfcPLNfDUtjGCGY6IABEtb0RenrxgBPIrx/uPApZhSs=",
+                "id": "1095443808617730",
+                "voice": true
+              }
+            }
+          ],
+          "field": "messages"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Is Text?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Existe Thread?": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checa Usuário": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cria User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cria User": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Baserow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Existe Thread?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baserow": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Text?": {
+      "main": [
+        [
+          {
+            "node": "Checa Usuário",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "981f6bb1-a2ca-4b5a-968b-44eeecdb656e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca8aeebe53fc0b8cbcc1faf91368cdc520fc04702325463621e8aabbc5630585"
+  },
+  "id": "oHuIIbBOv8wIXXVm",
+  "tags": []
+}

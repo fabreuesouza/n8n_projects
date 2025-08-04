@@ -1,0 +1,595 @@
+{
+  "name": "Redator de E-mail e Mensagens",
+  "nodes": [
+    {
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Mensagem",
+              "description": "Extraia apenas a mensagem em texto limpo, que será enviada pelo whatsapp.\nMantenha a pontuação segundo a gramática brasileira.\nEntenda os caracteres \"\\n\" como quebra de linha para separação das frases."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9dc9a12c-c464-435e-8075-3da822dd8464",
+      "name": "Information Extractor",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        4200,
+        -940
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash-latest",
+        "options": {
+          "temperature": 0.5
+        }
+      },
+      "id": "e56dd911-1936-4b72-8d39-0a7c173458e7",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        4340,
+        -760
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "gSJalkfoqFRHXbIS",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini-2024-07-18",
+        "options": {}
+      },
+      "id": "8bbab17f-ffc1-44c5-a1a6-95d896c3ced3",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        3580,
+        -680
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "FvrpySW4pKRXBRPt",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "e53e0925-3686-49e8-95d9-b17ebc8379f2",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        2380,
+        -920
+      ]
+    },
+    {
+      "parameters": {
+        "databaseId": 147184,
+        "tableId": 399378,
+        "returnAll": true,
+        "additionalOptions": {
+          "filters": {
+            "fields": [
+              {
+                "field": 3042502,
+                "value": "={{ $('Base Leads').item.json['Nome da Empresa'] }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "00822012-2b01-4d66-8ed3-fca574d6c855",
+      "name": "Base de Dados",
+      "type": "n8n-nodes-base.baserowTool",
+      "typeVersion": 1,
+      "position": [
+        3960,
+        -460
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "p9yT8hD4cKqwhnNl",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Seu trabalho é executar essa pesquisa no google com a entrada \"q\" que está recebendo e extrair o maior número de informações possíveis desse resultado, sobre o Instagram da empresa.",
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "key",
+              "valueProvider": "fieldValue",
+              "value": "AIzaSyBO2zirKqREAnzftfH42lOw3vJ2_V8N51s"
+            },
+            {
+              "name": "cx",
+              "valueProvider": "fieldValue",
+              "value": "853c61790af224d2c"
+            },
+            {
+              "name": "lr",
+              "valueProvider": "fieldValue",
+              "value": "lang_pt"
+            },
+            {
+              "name": "start",
+              "valueProvider": "fieldValue",
+              "value": "1"
+            },
+            {
+              "name": "num",
+              "valueProvider": "fieldValue",
+              "value": "10"
+            },
+            {
+              "name": "q",
+              "valueProvider": "fieldValue",
+              "value": "=site:instagram.com \"{{ $('Base Leads').item.json['Nome da Empresa'] }}\""
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "User-agent",
+              "valueProvider": "fieldValue",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+            }
+          ]
+        }
+      },
+      "id": "9f8d3b13-a99c-4a01-85f0-894ca4423ce4",
+      "name": "Busca Instagram",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        3840,
+        -600
+      ]
+    },
+    {
+      "parameters": {
+        "toolDescription": "Seu trabalho é executar essa pesquisa no google com a entrada \"q\" que está recebendo e extrair o maior número de informações possíveis desse resultado, sobre as reclamações existentes em nome da empresa.",
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "key",
+              "valueProvider": "fieldValue",
+              "value": "AIzaSyBO2zirKqREAnzftfH42lOw3vJ2_V8N51s"
+            },
+            {
+              "name": "cx",
+              "valueProvider": "fieldValue",
+              "value": "853c61790af224d2c"
+            },
+            {
+              "name": "lr",
+              "valueProvider": "fieldValue",
+              "value": "lang_pt"
+            },
+            {
+              "name": "start",
+              "valueProvider": "fieldValue",
+              "value": "1"
+            },
+            {
+              "name": "num",
+              "valueProvider": "fieldValue",
+              "value": "10"
+            },
+            {
+              "name": "q",
+              "valueProvider": "fieldValue",
+              "value": "=site:reclameaqui.com.br \"{{ $('Base Leads').item.json['Nome da Empresa'] }}\" {{ $('Base Leads').item.json.Cidade }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "User-agent",
+              "valueProvider": "fieldValue",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+            }
+          ]
+        }
+      },
+      "id": "b076a6e6-9f4f-456f-b39e-fae150733ecc",
+      "name": "Busca ReclameAqui",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        4060,
+        -640
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.id }}"
+      },
+      "id": "4ffc34ff-881b-463e-b9fc-7de31793d461",
+      "name": "Window Buffer",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        3720,
+        -680
+      ]
+    },
+    {
+      "parameters": {
+        "folderId": "1qKUk55Qfx4IRd4xlfiejoe_EaIcxxYO4",
+        "title": "={{ $('Base Leads').item.json['Nome da Empresa'] }} - {{ $('Base Leads').item.json.CNPJ }}"
+      },
+      "id": "3d7f5c72-247f-4022-8cba-f86e82f7b936",
+      "name": "Google Docs",
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        4560,
+        -940
+      ],
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "QkyIdiYBtXfvHml6",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "=Empresa: {{ $('Base Leads').item.json['Nome da Empresa'] }}\nCNPJ: {{ $('Base Leads').item.json.CNPJ }}\nRazão Social: {{ $('Base CNPJ').item.json['Nome da Empresa'] }}\nEquity: {{ $('Base CNPJ').item.json.Equity }}\nSócio Administrador: {{ $('Base CNPJ').item.json['Sócio Administrador'] }}\nE-mail: {{ $('Base CNPJ').item.json.Email }}\nIdade: {{ $('Base CNPJ').item.json.Idade }}\nResponsável Legal: {{ $('Base Leads').item.json['Responsável Legal'] }}\nNatureza: {{ $('Base CNPJ').item.json.Natureza }}\nPorte: {{ $('Base CNPJ').item.json.Porte }}\nFundação: {{ $('Base CNPJ').item.json['Fundação'] }}\nNicho: {{ $('Base Leads').item.json.Nicho }}\n\nCódigo do Lead: {{ $('Base Leads').item.json.cod_lead }}\nWebsite: {{ $('Base Leads').item.json.Site }}\nLink Whatsapp: {{ $('Base Leads').item.json['Link Whatsapp'] }}\nTelefone: {{ $('Base Leads').item.json.Telefone }} | {{ $('Base CNPJ').item.json['Telefone Fixo'] }} | {{ $('Base CNPJ').item.json['Telefone Celular'] }}\n\nAvaliações Google: {{ $('Base Leads').item.json['Avaliações'] }}\nNota Google: {{ $('Base Leads').item.json.Nota }}\nInstagram: {{ $('Base Leads').item.json.Instagram }}\nFacebook: {{ $('Base Leads').item.json.Facebook }}\n\nEndereço: {{ $('Base Leads').item.json['Endereço'] }}\nBairro: {{ $('Base CNPJ').item.json.Bairro }}\nCidade: {{ $('Base CNPJ').item.json.Cidade }}\nEstado: {{ $('Base CNPJ').item.json.Estado }}\nCEP: {{ $('Base CNPJ').item.json.CEP }}"
+            },
+            {
+              "object": "pageBreak",
+              "action": "insert"
+            },
+            {
+              "action": "insert",
+              "text": "=# Resumo do Site:\n---\n{{ $('Base Leads').item.json['Resumo do Site'] }}\n\n# Mensagem de Prospecção:\n---\n{{ $('Information Extractor').item.json.output.Mensagem }}"
+            }
+          ]
+        }
+      },
+      "id": "e0cc062e-c86d-4634-ab1b-0f9cc874043a",
+      "name": "Google Docs1",
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        4760,
+        -940
+      ],
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "QkyIdiYBtXfvHml6",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "databaseId": 147184,
+        "tableId": 399378,
+        "limit": 40,
+        "additionalOptions": {
+          "filters": {
+            "fields": [
+              {
+                "field": 3074463,
+                "value": "Coffee Shop"
+              }
+            ]
+          }
+        }
+      },
+      "id": "35ffcf62-bd7c-44c7-b586-3da7f18ab8c6",
+      "name": "Base Leads",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        2600,
+        -920
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "p9yT8hD4cKqwhnNl",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "databaseId": 147184,
+        "tableId": 414784,
+        "returnAll": true,
+        "additionalOptions": {
+          "filters": {
+            "fields": [
+              {
+                "field": 3175221,
+                "value": "={{ $json.CNPJ }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "97a46d88-3506-4e6a-afbc-8959fff1ccf4",
+      "name": "Base CNPJ",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        3160,
+        -1100
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "p9yT8hD4cKqwhnNl",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "76ea434a-d69f-4446-9151-228194daf4ba",
+              "leftValue": "={{ $json.CNPJ }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "007f8ce5-edf0-44d3-81d7-91153b119633",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2880,
+        -1080
+      ]
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "['Nome da Empresa']",
+        "options": {}
+      },
+      "id": "42ad6787-ab69-4b03-90af-3aa835686e50",
+      "name": "Remove Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        3560,
+        -940
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=#Regras\nPara sua referência temporal, hoje é dia {{ $now }}.\nComo vendedor experiente, de 30 anos, você é versado nas melhores técnicas de comunicação persuasiva e vendas, incluindo preparação, conhecimento do assunto, uso de SPIN SELLING, GPCTBA-CI, BATNA e ZOPA, entre outros. Além disso, sua habilidade em se adaptar durante uma conversa e uma negociação é excepcional.\nUtilize sempre as suas tools disponíveis.\nEvite exagerar na comunicação e não ivente situações que você não tem certeza. Por exemplo: Não invente que você já é cliente da empresa, ou que você já experimentou produtos da empresa ou que já esteve na empresa prospectada sem que essa informação tenha sido passada pra você.\nObedeça todas as instruções abaixo sabendo que os seus objetivos são:\n\n#Objetivos\n0. Estabelecer o primeiro contato com uma empresa em prospecção.\n1. Não ser \"ignorado\" pelo atendimento da empresa, isto é, conseguir ser atendido e abrir uma conversa. Utilize suas técnicas de coomunicação e persuasão para isso.\n2. Solicitar e conseguir o nome e o contato da pessoa \"decisora\" da empresa para tentar agendar uma reunião, de 20 a 30 minutos, online, para apresentar o potencial de crescimento do negócio.\n3. Essa apresentação tem como base estratégias de marketing digital, funil de vendas e automações com inteligência artificial.\n4. Evitar usar palavras formais, palavras como: marketing, marketing digital, online e agência. São palavras que geram certa resistência na maioria das empresas.\n5. Utilize palavras relacionadas a: Vendas, crescimento empresarial, potencial de crescimento, assessoria de vendas.\n\n#Instruções\nEscreva uma mensagem de primeiro contato, para lead frio, informal (sem palavras difícieis), positivo e persuasivo, com um forte gancho inicial, sobre a empresa \"{{ $json['Nome da Empresa'] }}\". Essa mensagem deve parecer uma conversa pessoal e tem o objetivo de conversar com o atendente até conseguir marcar uma reunião com o dono(a) ou decisor da empresa para apresentar um estudo preliminar de vendas e o potencial de crescimento empresarial personalizado para o negócio dele.\nComo você não sabe o nome do decisor, escreva de forma genérica, porém uma mensagem personalizada e direta.\nAcesse a sua tool \"Base de Dados\" e identifique se o site da empresa ({{ $json.Site }})é um domínio próprio ou é o link de rede social para que você não mencione informações erradas. \nLeia o resumo do site ({{ $json['Resumo do Site'] }}) para avaliar a qualidade das informações e contatos disponibilizados em uma visão de marketing e vendas. \nFaça uma análise das avaliações google (tool \"base de dados\") e comente positivamente. \nConsidere o resumo do site da empresa (tool \"base de dados\") para criar um gancho inicial poderoso e atraente (hook). \nComente positivamente sobre as últimas postagens no Instagram da empresa (acesse a tool \"Busca Instagram\").\nConsulte reclamações recentes da empresa (acesse a tool \"Busca ReclameAqui). \nFinalize a mensagem ou a conversa com uma pergunta aberta.",
+        "options": {
+          "systemMessage": "You are a helpful copywriter with 20 years of experience."
+        }
+      },
+      "id": "823f0365-c7cd-49c5-ab4d-611d3c9540a4",
+      "name": "SDR Copywriter",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        3820,
+        -940
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "SDR Copywriter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Base Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base de Dados": {
+      "ai_tool": [
+        [
+          {
+            "node": "SDR Copywriter",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca Instagram": {
+      "ai_tool": [
+        [
+          {
+            "node": "SDR Copywriter",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca ReclameAqui": {
+      "ai_tool": [
+        [
+          {
+            "node": "SDR Copywriter",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer": {
+      "ai_memory": [
+        [
+          {
+            "node": "SDR Copywriter",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Google Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Docs": {
+      "main": [
+        [
+          {
+            "node": "Google Docs1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base Leads": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base CNPJ": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Base CNPJ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "SDR Copywriter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SDR Copywriter": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "11166fb8-72b3-4d07-ab5a-1b212a0b874e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cf4acdb3c7457e6de3ae1172242b5e019e60fdddde76cddf79e063bad216475c"
+  },
+  "id": "Bi5PDrdcjpUPkbiE",
+  "tags": []
+}

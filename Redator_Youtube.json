@@ -1,0 +1,439 @@
+{
+  "name": "Redator Youtube",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "cssSelector": "p, h1, h2, h3, h4",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {
+          "trimValues": false
+        }
+      },
+      "id": "4be3321d-e207-492c-8ad2-e3578f3fb773",
+      "name": "HTML",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        420,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "fe293170-4f2d-4426-961c-ed979611841b",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        620,
+        280
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ab9d7da9-f81f-4115-b140-e04268d65d36",
+              "name": "Títulos",
+              "value": "={{ ($json.choices[0].message.content).split('\\n') }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "id": "814c4e9a-9f16-4c0c-bff9-2e42f044363a",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1580,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "['Títulos']",
+        "options": {}
+      },
+      "id": "f415b154-8cc8-495a-9eae-b27ff4d14bf7",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 5
+      },
+      "id": "3ee55380-3455-4a90-8ce2-3e532e9107a4",
+      "name": "Limit",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "folderId": "1qKUk55Qfx4IRd4xlfiejoe_EaIcxxYO4",
+        "title": "={{ $('Limit').item.json['[\\'Títulos\\']'] }}"
+      },
+      "id": "ec4b9a53-2743-4c6d-91ac-65e49608eae7",
+      "name": "Google Docs",
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2540,
+        300
+      ],
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "YFT6uVPpwZj8WnrU",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('Roteirista').item.json.message.content }}"
+            }
+          ]
+        }
+      },
+      "id": "96764716-9da0-4f1a-8e45-5b70f4a95240",
+      "name": "Google Docs1",
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2740,
+        300
+      ],
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "YFT6uVPpwZj8WnrU",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "4e62bd7c-9c3e-4e3e-b2a1-3cccaffc3865",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        60,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://conrado.com.br/blog/wp-json/wp/v2/posts",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "page",
+              "value": "1"
+            },
+            {
+              "name": "per_page",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2fb12272-bd1e-4394-9f7d-d6bc5bffb068",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini-2024-07-18",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI-2024-07-18"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "<agent>\n<role>Especialista em criação de títulos para vídeos do youtube</role>\n<task>Gerar títulos otimizados, versáteis, persuasivos e envolventes para o roteiro</task>\n<techniques>Copywriting avançado e SEO para youtube.</techniques>\n</agent>",
+              "role": "system"
+            },
+            {
+              "content": "=Gere 5 títulos para esse vídeo, separados por vírgula.\n{{ $('Roteirista').item.json.message.content }}"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "id": "b42ba60e-e7a5-47e0-91fa-eb6e9ba97aa7",
+      "name": "OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        1200,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oLuaU5tEYUN8P0Yr",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini-2024-07-18",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI-2024-07-18"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "<agent>\n<role>Especialista em criação de roteiros para vídeos do youtube</role>\n<task>Gerar um roteiro persuasivo e envolvente para vídeos do youtube</task>\n<techniques>Open and close content loops during the video to keep the subscriber attention until the end.</techniques>\n</agent>",
+              "role": "system"
+            },
+            {
+              "content": "={{ $json[''].map(item => item).join(``) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8f31adb5-1000-4245-bad6-b5293ceb9749",
+      "name": "Roteirista",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        820,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oLuaU5tEYUN8P0Yr",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini-2024-07-18",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI-2024-07-18"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "<agent>\n<role>Especialista em criação de descrição para vídeos do youtube</role>\n<task>Gerar uma descrição persuasiva e envolvente para vídeos do youtube</task>\n<techniques>Técncia de escrita envolvente para manter o assinante conectado na leitura.</techniques>\n</agent>",
+              "role": "system"
+            },
+            {
+              "content": "=Gere uma descrição de vídeo para o título:\n{{ $json['[\\'Títulos\\']'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1500ee47-2ef9-4e1b-b0fe-a96ad5b5bcdc",
+      "name": "Gera Descrição",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        2180,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oLuaU5tEYUN8P0Yr",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Roteirista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Gera Descrição",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Docs": {
+      "main": [
+        [
+          {
+            "node": "Google Docs1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Docs1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Roteirista": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gera Descrição": {
+      "main": [
+        [
+          {
+            "node": "Google Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1763cc03-c124-4392-8ebb-6bd136272222",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca8aeebe53fc0b8cbcc1faf91368cdc520fc04702325463621e8aabbc5630585"
+  },
+  "id": "oOeZtgi30q8Hd83E",
+  "tags": []
+}
